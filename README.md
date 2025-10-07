@@ -1,16 +1,18 @@
 # Old World Mapmaker
-This is an unofficial XML generator that converts 3 RGB bitmaps to a map for the game [Old World](https://en.wikipedia.org/wiki/Old_World_(video_game)) by [Mohawk Games](https://en.wikipedia.org/wiki/Mohawk_Games). I thought it was amazing the maps were all just in plain XML and wanted an easy way to make maps in an Image editor, so this is what I came up with. You could also use this to convert maps from other games to to here provided you keep the import/export palette the same. 
+This is an unofficial XML generator that converts 3 RGB bitmaps to a map for the game [Old World](https://en.wikipedia.org/wiki/Old_World_(video_game)) by [Mohawk Games](https://en.wikipedia.org/wiki/Mohawk_Games). I thought it was amazing the maps were all just in plain XML and wanted a lighter-weight way to make maps outside of the in-game editor, so I made this. The main use-case for this is to make a map first as a bitmap in an image editor like GIMP or Photoshop, then use this to transform your layers into XML.  
 
 ### Installation
 This has been rolled into a python package and CLI application. You can install the python package for Python 3.[ ]+ with pip,
 
-`pip install b`
+`pip install owmap`
 
 To set up a development environment I suggest using uv. After cloning the repository sync with the all dependency groups: 
 
 `uv sync --all-groups`
 
 ### CLI Basic usage
+
+[image](./docs/pipeline.svg)
 
 ```
 owmap [-h] [--mapname MAPNAME] [--terrainmap TERRAINMAP]

@@ -1,0 +1,21 @@
+@startuml design
+!theme aws-orange
+skinparam DatabaseFontColor White
+skinparam ArrowFontColor Whitesmoke
+
+component owmap
+
+file terrain as "Terrain Map"
+file height as "Height Map"
+file veg as "Vegetation Map"
+
+file xml as "XML Code"
+
+
+owmap --> xml
+terrain --> owmap
+height --> owmap
+veg --> owmap
+
+
+@enduml
