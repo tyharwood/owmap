@@ -10,6 +10,11 @@ To set up a development environment I suggest using uv. After cloning the reposi
 
 `uv sync --all-groups`
 
+I'm not the brightest bulb, so for some reason I couldn't get `uv run pytest` to work. For some reason that uses the default python interpreter instead of your virtual environment. This does work though:
+
+`uv run python -m pytest /tests`
+
+
 ### CLI Basic usage
 
 [image](./docs/pipeline.svg)
