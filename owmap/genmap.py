@@ -36,19 +36,22 @@ def generate_palette(palette, filename):
 
     # Set pixels
     for x, color in enumerate(palette.keys()):
+        # TODO: Add a label for each color in the palette
         img.putpixel((x, 0), color)
 
     # Save image
+    # TODO: Save palette as svg instead of png
     img.save(filename)
 
-#TODO: Not amenable to current pipeline, rewrite or impl. process_layer
-def interpret_generic(rgb, tilemap, tolerance=25):
+#TODO: Rewrite interpret_generic or impl. process_layer
+# Not amenable to current pipeline, rewrite or impl. process_layer
+def interpret_generic(rgb, tilemap, tolerance=15):
     """
     More generic function, not sure if this is the best way to do it.
     """
     tiletype = tilemap.get(rgb, "Unknown")
     
-    if tiletype != "Unknown" and tiletype != None: 
+    if tiletype != "Unknown" and tiletype != "None": 
         return tiletype
 
     for center_rgb, tiletype in tilemap.items():
@@ -91,11 +94,11 @@ def interpret_rgb_as_vegetation(rgb):
     vegetation_map = {
         (0, 255, 0): "VEGETATION_TREES",
         (0, 128, 0): "VEGETATION_SCRUB",
-        (255,255,255): None
+        (255,255,255): "None"
     }
     return vegetation_map.get(rgb, "None")
 
-#TODO: Implement
+#TODO: Implement process_layer to make it modular
 def process_layer():
     """Generic version of loop code in process_map_images"""
     ...    
