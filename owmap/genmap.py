@@ -43,7 +43,7 @@ def generate_palette(palette, filename):
     # TODO: Save palette as svg instead of png
     img.save(filename)
 
-#TODO: Rewrite interpret_generic or impl. process_layer
+# TODO: Rewrite interpret_generic or impl. process_layer
 # Not amenable to current pipeline, rewrite or impl. process_layer
 def interpret_generic(rgb, tilemap, tolerance=15):
     """
@@ -55,7 +55,7 @@ def interpret_generic(rgb, tilemap, tolerance=15):
         return tiletype
 
     for center_rgb, tiletype in tilemap.items():
-        # Manhattan distance (faster than Euclidean)
+        # Manhattan distance
         distance = sum(abs(a - b) for a, b in zip(rgb, center_rgb))
         if distance <= tolerance * 3:  # tolerance per channel * 3 channels
             return tiletype
@@ -82,7 +82,7 @@ def interpret_rgb_as_height(rgb):
         (222, 222, 222): "HEIGHT_MOUNTAIN",  
         (144, 144, 144): "HEIGHT_HILL",      
         (111, 111, 111): "HEIGHT_FLAT",      
-        (0, 222, 255): "HEIGHT_LAKE",     
+        (0, 255, 255): "HEIGHT_LAKE",     
         (0, 111, 255): "HEIGHT_COAST",       
         (0, 0, 255): "HEIGHT_OCEAN",    
         (255, 0, 0): "HEIGHT_VOLCANO" 
@@ -92,17 +92,18 @@ def interpret_rgb_as_height(rgb):
 def interpret_rgb_as_vegetation(rgb):
     """Map RGB values to vegetation types."""
     vegetation_map = {
-        (0, 255, 0): "VEGETATION_TREES",
-        (0, 128, 0): "VEGETATION_SCRUB",
+        (0, 90, 0): "VEGETATION_TREES",
+        (200, 128, 0): "VEGETATION_SCRUB",
         (255,255,255): "None"
     }
     return vegetation_map.get(rgb, "None")
 
-#TODO: Implement process_layer to make it modular
+# TODO: Implement process_layer to make it modular
 def process_layer():
     """Generic version of loop code in process_map_images"""
     ...    
 
+# TODO: Add default value when no layer given so all layers are optional
 def process_map_images(terrain_file, height_file, vegetation_file, output_file):
     """Generate an XML map file from input PNG maps."""
     # Open images
