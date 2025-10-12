@@ -9,7 +9,7 @@ def build_parser():
 
     parser.add_argument(
         'maps', nargs='*',
-        help='Map images in order: [height] [vegetation] [terrain]'
+        help='Map images in order: [height] [terrain] [vegetation]'
     )
 
     parser.add_argument(
@@ -18,13 +18,15 @@ def build_parser():
     )
 
     parser.add_argument(
-        '--terrainmap', '-t',
-        help='Terrain map',
-    )
-    parser.add_argument(
         '--heightmap','-e',
         help='Height map '
     )
+
+    parser.add_argument(
+        '--terrainmap', '-t',
+        help='Terrain map',
+    )
+
     parser.add_argument(
         '--vegmap', '-v',
         help='Vegetation map'
@@ -44,22 +46,22 @@ def main():
         if len(args.maps) != 3:
             parser.error(
                 "\n\t3 positional arguments required: " \
-                "[heightmap] [vegmap] [terrainmap]"
+                "[heightmap] [terrainmap] [vegmap]"
             )
-        height, veg, terrain = args.maps
+        height, terrain, veg = args.maps
 
     else:
         height = args.heightmap
-        veg = args.vegmap
         terrain = args.terrainmap
+        veg = args.vegmap
 
-    if not all([height, veg, terrain]):
+    if not all([height, terrain, veg]):
         parser.error(
             "\n\tMissing required arguments, 1 or more of: "\
-            "[heightmap] [vegmap] [terrainmap]"
+            "[heightmap] [terrainmap] [vegmap]"
         )
 
-    genmap.process_map_images(height, veg, terrain, args.mapname)
+    genmap.process_map_images(height, terrain, veg, args.mapname)
 
 if __name__ == "__main__":
     main()
