@@ -32,6 +32,12 @@ def build_parser():
         help='Vegetation map'
     )
 
+    parser.add_argument(
+        '--example', action='store_true',
+        default=False,
+        help='Generate an example image-set'
+    )
+
     return parser
 
 # TODO: Finish CLI
@@ -42,26 +48,30 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
-    if args.maps:
-        if len(args.maps) != 3:
-            parser.error(
-                "\n\t3 positional arguments required: " \
-                "[heightmap] [terrainmap] [vegmap]"
-            )
-        height, terrain, veg = args.maps
+    if args.example:
+        genmap.generate_donut_map('./docs/')
 
-    else:
-        height = args.heightmap
-        terrain = args.terrainmap
-        veg = args.vegmap
+    expected_args = ['height', 'terrain', 'veg']
+    argdict = {
+        'height': str(),
+        'terrain':str(),
+        'veg': str()
+    }
 
-    if not all([height, terrain, veg]):
-        parser.error(
-            "\n\tMissing required arguments, 1 or more of: "\
-            "[heightmap] [terrainmap] [vegmap]"
-        )
+    for i in range(len(args.maps)):
+        argdict[expected_args[i]] = args.maps[i]
 
-    genmap.process_map_images(height, terrain, veg, args.mapname)
+    if args.heightmap:    argdict['height'] = args.heightmap
+    if args.terrainmap:   argdict['terrain'] = args.terrainmap
+    if args.vegmap:       argdict['veg'] = args.vegmap
+
+    if not all([argdict['height'], argdict['terrain'], argdict['veg']]):
+        parser.print_usage()
+        parser.exit(2)
+
+    genmap.process_map_images(
+        argdict['height'], argdict['terrain'], argdict['veg'], args.mapname
+    )
 
 if __name__ == "__main__":
     main()

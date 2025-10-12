@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 
 def generate_donut_map(path='', size=128):
     """Generate a donut-shaped map with concentric circles of different terrain types."""
-    # -------------_---------TERR__----------------------------------
+    # --------------------------- TERRAIN ---------------------------
     terrain = Image.new('RGB', (size, size), (0, 0, 128))  # ocean
     draw = ImageDraw.Draw(terrain)
     
@@ -27,7 +27,7 @@ def generate_donut_map(path='', size=128):
     
     terrain.save(f"{path}/terrain_ex.png")
 
-    # ----------------------VEG------------------------------------
+    #----------------------VEG------------------------------------
     veg = Image.new('RGB', (size, size), (0, 0, 0))  # ocean
     draw = ImageDraw.Draw(veg)
     
@@ -44,7 +44,7 @@ def generate_donut_map(path='', size=128):
                  fill=(0, 0, 0))
     
     veg.save(f"{path}/veg_ex.png")
-    # -----------------HEIGGT----------------
+    # -----------------HEIGHT--------------------------------------
     height = Image.new('RGB', (size, size), (0, 111, 255))  # ocean
     draw = ImageDraw.Draw(height)
     
@@ -112,6 +112,7 @@ def interpret_rgb_as_terrain(rgb):
         (255, 255, 0): "TERRAIN_SAND",
         (0, 255, 0): "TERRAIN_TEMPERATE",
         (222, 222, 222): "TERRAIN_TUNDRA",
+        (0, 222, 111): "TERRAIN_MARSH",
         (0, 0, 0): "TERRAIN_URBAN",
         (0, 0, 128): "TERRAIN_WATER"
     }
@@ -119,7 +120,6 @@ def interpret_rgb_as_terrain(rgb):
 
 def interpret_rgb_as_height(rgb):
     """Map RGB values to height levels."""
-    print(rgb)
     height_map = {
         (222, 222, 222): "HEIGHT_MOUNTAIN",  
         (144, 144, 144): "HEIGHT_HILL",      
@@ -140,7 +140,7 @@ def interpret_rgb_as_vegetation(rgb):
     return vegetation_map.get(rgb, "None")
 
 # TODO: Implement process_layer to make it modular
-def process_layer():
+def process_layer(imagefile, tilemap) -> ET.ElementTree:
     """Generic version of loop code in process_map_images"""
     ...    
 
@@ -148,13 +148,20 @@ def process_layer():
 def process_map_images(height_file, terrain_file, vegetation_file, output_file):
     """Generate an XML map file from input PNG maps."""
     # Open images
-    terrain_img = Image.open(terrain_file)
-    height_img = Image.open(height_file)
-    vegetation_img = Image.open(vegetation_file)
+    height_img = Image.open(height_file) if height_file else None
+    terrain_img = Image.open(terrain_file) if terrain_file else None
+    vegetation_img = Image.open(vegetation_file) if vegetation_file else None
+
+    imgs = [height_img, terrain_img, vegetation_img]
+
+    # Check if there are any images to render
+    # TODO: Error message / raise for no images given
+    if all([not isinstance(img, Image.Image) for img in imgs]): return
+    print(imgs)
 
     # Ensure all images have the same dimensions
-    w, h = terrain_img.size
-    if any(img.size != (w, h) for img in [height_img, vegetation_img]):
+    w,h = imgs[0].size
+    if any(img.size != (w, h) for img in imgs if img is Image):
         raise ValueError("All input images must have the same dimensions.")
 
     # Prepare XML
@@ -163,21 +170,29 @@ def process_map_images(height_file, terrain_file, vegetation_file, output_file):
     id = 0
     for y in reversed(range(h)):
         for x in range(w):
-            # Get pixel data
-            terrain_rgb = terrain_img.getpixel((x, y))[:3]  # RGB tuple
-            height_rgb = height_img.getpixel((x, y))[:3]
-            vegetation_rgb = vegetation_img.getpixel((x, y))[:3]
-
-            # Interpret pixel data
-            terrain = interpret_rgb_as_terrain(terrain_rgb)
-            height = interpret_rgb_as_height(height_rgb)
-            vegetation = interpret_rgb_as_vegetation(vegetation_rgb)
-
             # Create tile element
             tile = ET.SubElement(root, "Tile", ID=str(id))
-            if terrain: ET.SubElement(tile, "Terrain").text = terrain
-            if height: ET.SubElement(tile, "Height").text = height
-            if vegetation: ET.SubElement(tile, "Vegetation").text = vegetation
+
+            # Terrain
+            if terrain_img:
+                terrain_rgb = terrain_img.getpixel((x, y))[:3]  # RGB tuple
+                terrain = interpret_rgb_as_terrain(terrain_rgb)
+                ET.SubElement(tile, "Terrain").text = terrain
+            
+            # Height
+            if height_img:
+                height_rgb = height_img.getpixel((x, y))[:3]
+                height = interpret_rgb_as_height(height_rgb)
+                ET.SubElement(tile, "Height").text = height
+
+
+            # Vegetation
+            if vegetation_img:
+                vegetation_rgb = vegetation_img.getpixel((x, y))[:3]
+                vegetation = interpret_rgb_as_vegetation(vegetation_rgb)
+                ET.SubElement(tile, "Vegetation").text = vegetation
+            
+            
             id+=1
 
     # Write out to XML doc
