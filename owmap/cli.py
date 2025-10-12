@@ -38,6 +38,12 @@ def build_parser():
         help='Generate an example image-set'
     )
 
+    parser.add_argument(
+        '--genpalette', '-p',
+        action='store_true', default=False,
+        help='Generate a small image of the current palette used'
+    )
+
     return parser
 
 # TODO: Finish CLI
@@ -50,6 +56,10 @@ def main():
 
     if args.example:
         genmap.generate_donut_map('./docs/')
+
+    if args.genpalette:
+        #genmap.generate_palette()
+        ...
 
     expected_args = ['height', 'terrain', 'veg']
     argdict = {

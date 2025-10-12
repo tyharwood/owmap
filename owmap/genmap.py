@@ -2,6 +2,32 @@ import os
 from PIL import Image, ImageDraw
 import xml.etree.ElementTree as ET
 
+# TODO: Have palette be imported from yaml files instead of hard-coded
+TERRAIN = {
+    (0, 128, 0): "TERRAIN_LUSH",
+    (255, 200, 0): "TERRAIN_ARID",
+    (255, 255, 0): "TERRAIN_SAND",
+    (0, 255, 0): "TERRAIN_TEMPERATE",
+    (222, 222, 222): "TERRAIN_TUNDRA",
+    (0, 222, 111): "TERRAIN_MARSH",
+    (222, 0, 111): "TERRAIN_URBAN",
+    (0, 0, 128): "TERRAIN_WATER",
+    (0,0,0) : "Unknown"
+}
+HEIGHT = {
+    (222, 222, 222): "HEIGHT_MOUNTAIN",  
+    (144, 144, 144): "HEIGHT_HILL",      
+    (111, 111, 111): "HEIGHT_FLAT",      
+    (0, 255, 255): "HEIGHT_LAKE",     
+    (0, 111, 255): "HEIGHT_COAST",       
+    (0, 0, 255): "HEIGHT_OCEAN",    
+    (255, 0, 0): "HEIGHT_VOLCANO" 
+}
+VEGET = {
+    (0, 90, 0): "VEGETATION_TREES",
+    (200, 128, 0): "VEGETATION_SCRUB",
+}
+
 def generate_donut_map(path='', size=128):
     """Generate a donut-shaped map with concentric circles of different terrain types."""
     # --------------------------- TERRAIN ---------------------------
@@ -84,16 +110,12 @@ def generate_palette(palette, filename):
     # TODO: Save palette as svg instead of png
     img.save(filename)
 
-# TODO: Rewrite interpret_generic or impl. process_layer
-# Not amenable to current pipeline, rewrite or impl. process_layer
+
 def interpret_generic(rgb, tilemap, tolerance=15):
     """
     More generic function, not sure if this is the best way to do it.
     """
     tiletype = tilemap.get(rgb, "Unknown")
-    
-    if tiletype != "Unknown" and tiletype != "None": 
-        return tiletype
 
     for center_rgb, tiletype in tilemap.items():
         # Manhattan distance
@@ -102,42 +124,6 @@ def interpret_generic(rgb, tilemap, tolerance=15):
             return tiletype
     
     return "Unknown"
-
-# Define mappings for terrain, height, vegetation, and rivers
-def interpret_rgb_as_terrain(rgb):
-    """Map RGB values to terrain types."""
-    terrain_map = {
-        (0, 128, 0): "TERRAIN_LUSH",
-        (255, 200, 0): "TERRAIN_ARID",
-        (255, 255, 0): "TERRAIN_SAND",
-        (0, 255, 0): "TERRAIN_TEMPERATE",
-        (222, 222, 222): "TERRAIN_TUNDRA",
-        (0, 222, 111): "TERRAIN_MARSH",
-        (0, 0, 0): "TERRAIN_URBAN",
-        (0, 0, 128): "TERRAIN_WATER"
-    }
-    return terrain_map.get(rgb, "Unknown")
-
-def interpret_rgb_as_height(rgb):
-    """Map RGB values to height levels."""
-    height_map = {
-        (222, 222, 222): "HEIGHT_MOUNTAIN",  
-        (144, 144, 144): "HEIGHT_HILL",      
-        (111, 111, 111): "HEIGHT_FLAT",      
-        (0, 255, 255): "HEIGHT_LAKE",     
-        (0, 111, 255): "HEIGHT_COAST",       
-        (0, 0, 255): "HEIGHT_OCEAN",    
-        (255, 0, 0): "HEIGHT_VOLCANO" 
-    }
-    return height_map.get(rgb, "None") 
-
-def interpret_rgb_as_vegetation(rgb):
-    """Map RGB values to vegetation types."""
-    vegetation_map = {
-        (0, 90, 0): "VEGETATION_TREES",
-        (200, 128, 0): "VEGETATION_SCRUB",
-    }
-    return vegetation_map.get(rgb, "None")
 
 # TODO: Implement process_layer to make it modular
 def process_layer(imagefile, tilemap) -> ET.ElementTree:
@@ -157,7 +143,6 @@ def process_map_images(height_file, terrain_file, vegetation_file, output_file):
     # Check if there are any images to render
     # TODO: Error message / raise for no images given
     if all([not isinstance(img, Image.Image) for img in imgs]): return
-    print(imgs)
 
     # Ensure all images have the same dimensions
     w,h = imgs[0].size
@@ -176,21 +161,24 @@ def process_map_images(height_file, terrain_file, vegetation_file, output_file):
             # Terrain
             if terrain_img:
                 terrain_rgb = terrain_img.getpixel((x, y))[:3]  # RGB tuple
-                terrain = interpret_rgb_as_terrain(terrain_rgb)
+                terrain = interpret_generic(terrain_rgb, TERRAIN)
                 ET.SubElement(tile, "Terrain").text = terrain
             
             # Height
             if height_img:
                 height_rgb = height_img.getpixel((x, y))[:3]
-                height = interpret_rgb_as_height(height_rgb)
-                ET.SubElement(tile, "Height").text = height
+                height = interpret_generic(height_rgb, HEIGHT)
+                if height != "Unknown":
+                    ET.SubElement(tile, "Height").text = height
 
 
             # Vegetation
             if vegetation_img:
                 vegetation_rgb = vegetation_img.getpixel((x, y))[:3]
-                vegetation = interpret_rgb_as_vegetation(vegetation_rgb)
-                ET.SubElement(tile, "Vegetation").text = vegetation
+                vegetation = interpret_generic(vegetation_rgb, VEGET)
+
+                if vegetation != 'Unknown':
+                    ET.SubElement(tile, "Vegetation").text = vegetation
             
             
             id+=1
@@ -201,4 +189,6 @@ def process_map_images(height_file, terrain_file, vegetation_file, output_file):
 
 if __name__ == "__main__":
 
-    generate_donut_map('docs', size=50)
+    generate_palette(HEIGHT, 'docs/heightpalette.png')
+    generate_palette(TERRAIN, 'docs/terrainpalette.png')
+    generate_palette(VEGET, 'docs/vegepalette.png')

@@ -3,11 +3,12 @@ from PIL import Image
 import tempfile
 import os
 from owmap.genmap import (
-    interpret_rgb_as_terrain,
-    interpret_rgb_as_height,
-    interpret_rgb_as_vegetation,
+    interpret_generic,
     generate_donut_map,
-    generate_palette
+    generate_palette,
+    HEIGHT,
+    TERRAIN,
+    VEGET,
 )
 
 class TestRGBInterpretation:
@@ -15,30 +16,30 @@ class TestRGBInterpretation:
     
     def test_terrain_interpretation_known_colors(self):
         # Test some basic terrain mappings
-        assert interpret_rgb_as_terrain((0, 128, 0)) == "TERRAIN_LUSH"
-        assert interpret_rgb_as_terrain((255, 200, 0)) == "TERRAIN_ARID"
-        assert interpret_rgb_as_terrain((0, 0, 128)) == "TERRAIN_WATER"
-        assert interpret_rgb_as_terrain((0, 255, 0)) == "TERRAIN_TEMPERATE"
+        assert interpret_generic((0, 128, 0), TERRAIN) == "TERRAIN_LUSH"
+        assert interpret_generic((255, 200, 0), TERRAIN) == "TERRAIN_ARID"
+        assert interpret_generic((0, 0, 128), TERRAIN) == "TERRAIN_WATER"
+        assert interpret_generic((0, 255, 0), TERRAIN) == "TERRAIN_TEMPERATE"
     
     def test_terrain_interpretation_unknown_color(self):
         # Test with a color that's not in the terrain map
-        assert interpret_rgb_as_terrain((123, 45, 67)) == "Unknown"
-        assert interpret_rgb_as_terrain((255, 255, 255)) == "Unknown"
+        assert interpret_generic((123, 45, 67), TERRAIN) == "Unknown"
+        assert interpret_generic((255, 255, 255), TERRAIN) == "Unknown"
     
     def test_height_interpretation_known_colors(self):
-        assert interpret_rgb_as_height((222, 222, 222)) == "HEIGHT_MOUNTAIN"
-        assert interpret_rgb_as_height((144, 144, 144)) == "HEIGHT_HILL"
-        assert interpret_rgb_as_height((0, 0, 255)) == "HEIGHT_OCEAN"
-        assert interpret_rgb_as_height((255, 0, 0)) == "HEIGHT_VOLCANO"
+        assert interpret_generic((222, 222, 222), HEIGHT) == "HEIGHT_MOUNTAIN"
+        assert interpret_generic((144, 144, 144), HEIGHT) == "HEIGHT_HILL"
+        assert interpret_generic((0, 0, 255), HEIGHT) == "HEIGHT_OCEAN"
+        assert interpret_generic((255, 0, 0), HEIGHT) == "HEIGHT_VOLCANO"
     
     def test_height_interpretation_unknown_color(self):
-        assert interpret_rgb_as_height((100, 200, 50)) == "None"
+        assert interpret_generic((100, 200, 50), HEIGHT) == "Unknown"
     
     def test_vegetation_interpretation(self):
-        assert interpret_rgb_as_vegetation((0, 90, 0)) == "VEGETATION_TREES"
-        assert interpret_rgb_as_vegetation((200, 128, 0)) == "VEGETATION_SCRUB"
-        assert interpret_rgb_as_vegetation((255, 255, 255)) == "None"
-        assert interpret_rgb_as_vegetation((50, 75, 100)) == "None"
+        assert interpret_generic((0, 90, 0), VEGET) == "VEGETATION_TREES"
+        assert interpret_generic((200, 128, 0), VEGET) == "VEGETATION_SCRUB"
+        assert interpret_generic((255, 255, 255), VEGET) == "Unknown"
+        assert interpret_generic((50, 75, 100), VEGET) == "Unknown"
 
 
 class TestImageGeneration:
