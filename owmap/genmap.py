@@ -28,7 +28,7 @@ VEGET = {
     (200, 128, 0): "VEGETATION_SCRUB",
 }
 
-def generate_donut_map(path='', size=128):
+def generate_donut_map(path='.', size=128):
     """Generate a donut-shaped map with concentric circles of different terrain types."""
     # --------------------------- TERRAIN ---------------------------
     terrain = Image.new('RGB', (size, size), (0, 0, 128))  # ocean
