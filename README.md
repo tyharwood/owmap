@@ -27,14 +27,14 @@ owmap [-h] [--mapname MAPNAME] [--terrainmap TERRAINMAP]
 
 At its most basic, the cli tool can take 3 positional arguments like so: 
 
-`owmap [heightmap] [vegmap] [terrainmap]`
+`owmap [heightmap] [terrainmap] [vegmap] `
 
 Each of these maps represents a different layer of Old World's tile system. All of these maps are required to build a proper world. The tool can also be run with flags instead of positional arguments, for example:
 
-`owmap --terrainmap docs/donut.png --heightmap docs/donut_height.png --vegmap docs/donut_veg.png --mapname docs/donut.xml`
+`owmap --terrainmap docs/terrain_ex.png --heightmap docs/height_ex.png --vegmap docs/veg_ex.png --mapname docs/donut.xml`
 
 or more succinctly:
 
-`owmap -t docs/donut.png -e docs/donut_height.png -v docs/donut_veg.png -o docs/donut.xml`
+`owmap -t docs/terrain_ex.png -e docs/height_ex.png -v docs/veg_ex.png -o docs/donut.xml`
 
 The order doesn't matter for flags. 

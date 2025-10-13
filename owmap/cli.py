@@ -9,7 +9,7 @@ def build_parser():
 
     parser.add_argument(
         'maps', nargs='*',
-        help='Map images in order: [height] [vegetation] [terrain]'
+        help='Map images in order: [height] [terrain] [vegetation]'
     )
 
     parser.add_argument(
@@ -18,16 +18,30 @@ def build_parser():
     )
 
     parser.add_argument(
-        '--terrainmap', '-t',
-        help='Terrain map',
-    )
-    parser.add_argument(
         '--heightmap','-e',
         help='Height map '
     )
+
+    parser.add_argument(
+        '--terrainmap', '-t',
+        help='Terrain map',
+    )
+
     parser.add_argument(
         '--vegmap', '-v',
         help='Vegetation map'
+    )
+
+    parser.add_argument(
+        '--example', action='store_true',
+        default=False,
+        help='Generate an example image-set'
+    )
+
+    parser.add_argument(
+        '--genpalette', '-p',
+        action='store_true', default=False,
+        help='Generate a small image of the current palette used'
     )
 
     return parser
@@ -40,26 +54,34 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
-    if args.maps:
-        if len(args.maps) != 3:
-            parser.error(
-                "\n\t3 positional arguments required: " \
-                "[heightmap] [vegmap] [terrainmap]"
-            )
-        height, veg, terrain = args.maps
+    if args.example:
+        genmap.generate_donut_map('./docs/')
 
-    else:
-        height = args.heightmap
-        veg = args.vegmap
-        terrain = args.terrainmap
+    if args.genpalette:
+        #genmap.generate_palette()
+        ...
 
-    if not all([height, veg, terrain]):
-        parser.error(
-            "\n\tMissing required arguments, 1 or more of: "\
-            "[heightmap] [vegmap] [terrainmap]"
-        )
+    expected_args = ['height', 'terrain', 'veg']
+    argdict = {
+        'height': str(),
+        'terrain':str(),
+        'veg': str()
+    }
 
-    genmap.process_map_images(height, veg, terrain, args.mapname)
+    for i in range(min(len(args.maps), len(expected_args))):
+        argdict[expected_args[i]] = args.maps[i]
+
+    if args.heightmap:    argdict['height'] = args.heightmap
+    if args.terrainmap:   argdict['terrain'] = args.terrainmap
+    if args.vegmap:       argdict['veg'] = args.vegmap
+
+    if not all([argdict['height'], argdict['terrain'], argdict['veg']]):
+        parser.print_usage()
+        parser.exit(2)
+
+    genmap.process_map_images(
+        argdict['height'], argdict['terrain'], argdict['veg'], args.mapname
+    )
 
 if __name__ == "__main__":
     main()
