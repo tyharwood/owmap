@@ -68,7 +68,7 @@ def main():
         'veg': str()
     }
 
-    for i in range(len(args.maps)):
+    for i in range(min(len(args.maps), len(expected_args))):
         argdict[expected_args[i]] = args.maps[i]
 
     if args.heightmap:    argdict['height'] = args.heightmap
