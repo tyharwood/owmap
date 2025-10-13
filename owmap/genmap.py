@@ -146,7 +146,7 @@ def process_map_images(height_file, terrain_file, vegetation_file, output_file):
 
     # Ensure all images have the same dimensions
     w,h = imgs[0].size
-    if any(img.size != (w, h) for img in imgs if img is Image):
+    if any(img.size != (w, h) for img in imgs if isinstance(img, Image.Image)):
         raise ValueError("All input images must have the same dimensions.")
 
     # Prepare XML
