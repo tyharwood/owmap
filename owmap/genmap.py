@@ -115,15 +115,18 @@ def interpret_generic(rgb, tilemap, tolerance=15):
     """
     More generic function, not sure if this is the best way to do it.
     """
-    tiletype = tilemap.get(rgb, "Unknown")
-
+    tiletype = tilemap.get(rgb, None)
+    if tiletype:
+        return tiletype
+    
+    best_fit = 255, "Unknown"
     for center_rgb, tiletype in tilemap.items():
         # Manhattan distance
         distance = sum(abs(a - b) for a, b in zip(rgb, center_rgb))
-        if distance <= tolerance * 3:  # tolerance per channel * 3 channels
-            return tiletype
-    
-    return "Unknown"
+        if distance <= tolerance * 3 or distance < best_fit[0]:  # tolerance per channel * 3 channels
+            best_fit = distance, tiletype
+
+    return best_fit[1]
 
 # TODO: Implement process_layer to make it modular
 def process_layer(imagefile, tilemap) -> ET.ElementTree:
@@ -191,4 +194,5 @@ if __name__ == "__main__":
 
     generate_palette(HEIGHT, 'docs/heightpalette.png')
     generate_palette(TERRAIN, 'docs/terrainpalette.png')
+
     generate_palette(VEGET, 'docs/vegepalette.png')
