@@ -18,7 +18,8 @@ grep -r "$KEYWORD:" --include="*.py" --include="*.lua" --include="*.js" --includ
     file=$(echo "$line" | cut -d: -f1)
     line_num=$(echo "$line" | cut -d: -f2)
     comment=$(echo "$line" | cut -d: -f3- | sed "s/.*$KEYWORD: *//" | sed 's/^[[:space:]]*//')
-    
+    context=$(sed -n "$((line_num+10))p" "$file" 2>/dev/null || echo "Could not retrieve context")
+
     # Skip if comment is empty
     if [ -z "$comment" ]; then
         continue
@@ -29,7 +30,7 @@ grep -r "$KEYWORD:" --include="*.py" --include="*.lua" --include="*.js" --includ
     body="Found in \`$file\` at line $line_num:
 
 \`\`\`
-$comment
+$context
 \`\`\`
 
 "
