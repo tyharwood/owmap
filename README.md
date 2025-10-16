@@ -17,7 +17,7 @@ I'm not the brightest bulb, so for some reason I couldn't get `uv run pytest` to
 
 ### CLI Basic usage
 
-[image](./docs/pipeline.svg)
+![pipeline](./docs/pipeline.svg)
 
 ```
 owmap [-h] [--mapname MAPNAME] [--terrainmap TERRAINMAP]
