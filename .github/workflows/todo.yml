@@ -70,8 +70,9 @@ jobs:
           
           if [ -n "$closed_issue" ]; then
             # Reopen the closed issue and add a comment
-            gh issue reopen "$closed_issue"
-            gh issue comment "$closed_issue" --body "$body"
+            # gh issue reopen "$closed_issue"
+            # gh issue comment "$closed_issue" --body "$body"
+            gh issue delete "$closed_issue"
           else
             # Create a new issue if no issues exist at all
             gh issue create --title "$title" --body "$body" --label "bug"
