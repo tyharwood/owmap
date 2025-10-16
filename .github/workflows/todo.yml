@@ -1,0 +1,80 @@
+
+name: "Run TODO to Issue"
+
+on: [push]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install GitHub CLI
+      run: |
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+        && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+        && sudo apt update \
+        && sudo apt install gh -y    
+
+    - name: Find TODOs and create issues
+      run: |
+        grep -n "#TODO" --include="*.py" -r . | while IFS=':' read -r file line content; do
+          message=$(echo "$content" | awk -F'#TODO[:]\\s*' '{print $2}')
+          title="$message"
+          context=$(sed -n "${line},+15p" "$file")
+          body="\`$file\` at line $line:
+        \`\`\`python
+        $context
+        \`\`\`"
+
+        issue_exists=$(gh issue list --search "$title in:title" --json state --jq 'map(select(.state == "OPEN")) | length')
+        if [ "$issue_exists" -eq 0 ]; then
+          # Check if there are closed issues with this title
+          closed_issue=$(gh issue list --search "$title in:title is:closed" --json number --limit 1 --jq '.[0].number')
+          
+          if [ -n "$closed_issue" ]; then
+            # Reopen the closed issue and add a comment
+            gh issue reopen "$closed_issue"
+            gh issue comment "$closed_issue" --body "$body"
+          else
+            # Create a new issue if no issues exist at all
+            gh issue create --title "$title" --body "$body" --label "enhancement"
+          fi
+        fi
+        done
+
+    - name: Find Bug comments and create issue
+      run: |
+        grep -n "#FIXME" --include="*.py" -r . | while IFS=':' read -r file line content; do
+          message=$(echo "$content" | awk -F'#FIXME[:]\\s*' '{print $2}')
+          title="$message"
+          context=$(sed -n "${line},+15p" "$file")
+          body="\`$file\` at line $line:
+        \`\`\`python
+        $context
+        \`\`\`"
+
+        issue_exists=$(gh issue list --search "$title in:title" --json state --jq 'map(select(.state == "OPEN")) | length')
+        if [ "$issue_exists" -eq 0 ]; then
+          # Check if there are closed issues with this title
+          closed_issue=$(gh issue list --search "$title in:title is:closed" --json number --limit 1 --jq '.[0].number')
+          
+          if [ -n "$closed_issue" ]; then
+            # Reopen the closed issue and add a comment
+            gh issue reopen "$closed_issue"
+            gh issue comment "$closed_issue" --body "$body"
+          else
+            # Create a new issue if no issues exist at all
+            gh issue create --title "$title" --body "$body" --label "bug"
+          fi
+        fi
+        done
