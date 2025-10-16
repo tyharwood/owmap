@@ -39,14 +39,13 @@ def build_parser():
     )
 
     parser.add_argument(
-        '--genpalette', '-p',
+        '--genpalettes', '-p',
         action='store_true', default=False,
         help='Generate a small image of the current palette used'
     )
 
     return parser
 
-# TODO: Finish CLI
 # TODO: Make all layers optional in CLI
 # TODO: Add palette gen command in CLI
 # TODO: Add testmap gen command in CLI
@@ -57,9 +56,10 @@ def main():
     if args.example:
         genmap.generate_donut_map('./docs/')
 
-    if args.genpalette:
-        #genmap.generate_palette()
-        ...
+    if args.genpalettes:
+        genmap.generate_height_palette()
+        genmap.generate_terrain_palette()
+        genmap.generate_veg_palette()
 
     expected_args = ['height', 'terrain', 'veg']
     argdict = {

@@ -2,6 +2,8 @@ import os
 from PIL import Image, ImageDraw
 import xml.etree.ElementTree as ET
 
+#TODO: IO Operations should be moved to the CLI
+
 # TODO: Have palette be imported from yaml files instead of hard-coded
 TERRAIN = {
     (0, 128, 0): "TERRAIN_LUSH",
@@ -93,7 +95,6 @@ def generate_donut_map(path='.', size=128):
     
     height.save(f"{path}/height_ex.png")
 
-
 def generate_palette(palette, filename):
     """Generate a PNG image with one pixel for each color in the palette."""
     # Create an image with the size of the palette
@@ -110,6 +111,14 @@ def generate_palette(palette, filename):
     # TODO: Save palette as svg instead of png
     img.save(filename)
 
+def generate_height_palette():
+    generate_palette(HEIGHT, './height_palette.png')
+
+def generate_terrain_palette():
+    generate_palette(TERRAIN, './terrain_palette.png')
+
+def generate_veg_palette():
+    generate_palette(VEGET, './vegetation_palette.png')
 
 def interpret_generic(rgb, tilemap, tolerance=15):
     """
