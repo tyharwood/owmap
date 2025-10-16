@@ -11,4 +11,4 @@ wheels/
 .venv
 
 # testing area
-testzone
+.sandbox

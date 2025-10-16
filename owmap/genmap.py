@@ -1,8 +1,6 @@
 import os
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import xml.etree.ElementTree as ET
-
-#TODO: IO Operations should be moved to the CLI
 
 # TODO: Have palette be imported from yaml files instead of hard-coded
 TERRAIN = {
@@ -95,22 +93,33 @@ def generate_donut_map(path='.', size=128):
     
     height.save(f"{path}/height_ex.png")
 
-def generate_palette(palette, filename):
+def generate_palette(palette:dict, filename:str):
     """Generate a PNG image with one pixel for each color in the palette."""
     # Create an image with the size of the palette
-    width = len(palette)
-    height = 1  # One row of pixels
-    img = Image.new('RGB', (width, height))
+    fontsize = 8
+    height = len(palette) * 8
+    width = max(map(lambda s: len(s), palette.values())) * fontsize - fontsize // 2
+    img = Image.new('RGB', (width, height), color=(255,255,255))
+    draw = ImageDraw.Draw(img)
+    fnt = ImageFont.load_default(fontsize)
+
 
     # Set pixels
-    for x, color in enumerate(palette.keys()):
-        # TODO: Add a label for each color in the palette
-        img.putpixel((x, 0), color)
+    for y, color, mapping in zip(
+        range(0, height, 8), 
+        palette.keys(), 
+        palette.values()
+    ):
+        # Rectangle with text beside it    
+        draw.rectangle([0, y, 8, y+10], fill=color)
+        draw.text((16, y-2), mapping,  font=fnt, fill=(0,0,0))
+        print(f"Made {color}:{mapping} at {y}")
 
     # Save image
-    # TODO: Save palette as svg instead of png
+    # TODO: Save palette as svg instead of png?
     img.save(filename)
 
+#TODO: IO Operations should be moved to the CLI
 def generate_height_palette():
     generate_palette(HEIGHT, './height_palette.png')
 
@@ -200,8 +209,9 @@ def process_map_images(height_file, terrain_file, vegetation_file, output_file):
     tree.write(output_file, encoding="utf-8", xml_declaration=True)
 
 if __name__ == "__main__":
-
-    generate_palette(HEIGHT, 'docs/heightpalette.png')
-    generate_palette(TERRAIN, 'docs/terrainpalette.png')
-
-    generate_palette(VEGET, 'docs/vegepalette.png')
+    # Example usage
+    generate_donut_map('.', 50)
+    generate_height_palette()
+    generate_terrain_palette()
+    generate_veg_palette()
+    process_map_images('height_ex.png', 'terrain_ex.png', 'veg_ex.png', 'newmap.xml')

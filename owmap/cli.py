@@ -46,9 +46,6 @@ def build_parser():
 
     return parser
 
-# TODO: Make all layers optional in CLI
-# TODO: Add palette gen command in CLI
-# TODO: Add testmap gen command in CLI
 def main():
     parser = build_parser()
     args = parser.parse_args()
