@@ -52,3 +52,7 @@ or more succinctly:
 `owmap -t docs/terrain_ex.png -e docs/height_ex.png -v docs/veg_ex.png -o docs/donut.xml`
 
 The order doesn't matter for flags. 
+
+# Usage with Image Editor
+
+The main advantage of this tool is that it allows you to use your image-editor of choice to create maps for the game. If you want to see an example of this sort of setup, I have written a [guide](./docs/guide.md) demonstrating a workflow with GIMP. While making maps from scratch isn't a whole lot more efficient than drawing in the ingame editor, you can use this tool to make maps using any images from online as a template such as those you were once able to get from the DEMIS World Map Server. (Which you can now find on the Wikimedia commons [here](https://commons.wikimedia.org/wiki/Category:Topographic_world_maps_from_Demis)
